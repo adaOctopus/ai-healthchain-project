@@ -51,7 +51,9 @@ Stores Merkle roots and verifies data integrity.
 - `verifyMerkleRoot()`: Verify root exists
 - `getRecordSetRoots()`: Get all roots for record set
 
-## Setup
+## Quick Start
+
+### Local Development
 
 1. Install dependencies:
 ```bash
@@ -63,15 +65,39 @@ npm install
 npm run compile
 ```
 
-3. Run tests:
+3. Start local Hardhat node (in separate terminal):
 ```bash
-npm test
+npm run node
 ```
 
 4. Deploy to local network:
 ```bash
 npm run deploy:local
 ```
+
+5. Interact with contracts:
+```bash
+npm run interact:local
+```
+
+### Sepolia Testnet
+
+1. Configure environment:
+```bash
+cp .env.example .env
+# Edit .env with your RPC URL, private key, and Etherscan API key
+```
+
+2. Get Sepolia ETH from a faucet (https://sepoliafaucet.com/)
+
+3. Deploy:
+```bash
+npm run deploy:sepolia
+```
+
+**📖 For detailed instructions, see:**
+- [Quick Start Guide](./QUICK_START.md) - Get started in 5 minutes
+- [Deployment Guide](./DEPLOYMENT_GUIDE.md) - Comprehensive deployment instructions
 
 ## Security Features
 
@@ -90,7 +116,26 @@ Comprehensive test suites are provided for each contract:
 
 ## Deployment
 
-See `scripts/deploy.js` for deployment script. The script deploys all contracts as UUPS upgradeable proxies.
+### Available Scripts
+
+- `npm run node` - Start local Hardhat node
+- `npm run compile` - Compile contracts
+- `npm run test` - Run tests
+- `npm run deploy:local` - Deploy to local network
+- `npm run deploy:sepolia` - Deploy to Sepolia testnet
+- `npm run interact:local` - Interact with local contracts
+- `npm run interact:sepolia` - Interact with Sepolia contracts
+- `npm run verify:sepolia` - Verify contracts on Etherscan
+
+### Deployment Scripts
+
+- `scripts/deploy.js` - Deploys all contracts as UUPS upgradeable proxies
+- `scripts/interact.js` - Example contract interactions
+
+### Documentation
+
+- [Quick Start Guide](./QUICK_START.md) - Fast setup guide
+- [Deployment Guide](./DEPLOYMENT_GUIDE.md) - Complete deployment instructions
 
 ## Dependencies
 

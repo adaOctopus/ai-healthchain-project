@@ -27,3 +27,9 @@ Thumbs.db
 # Generated data (optional - you may want to commit this)
 # server/src/data/generated-data.js
 
+# Hardhat
+contracts/cache/
+contracts/artifacts/
+contracts/deployments/
+!contracts/deployments/.gitkeep
+
