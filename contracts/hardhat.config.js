@@ -4,7 +4,7 @@ require("@openzeppelin/hardhat-upgrades");
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
-    version: "0.8.20",
+    version: "0.8.22",
     settings: {
       optimizer: {
         enabled: true,
@@ -26,11 +26,7 @@ module.exports = {
       chainId: parseInt(process.env.TESTNET_CHAIN_ID || "0"),
     },
   },
-  paths: {
-    sources: "./",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./artifacts",
-  },
+  // Use default paths - Hardhat will look in 'contracts/' subdirectory by default
+  // This avoids treating node_modules as source files
 };
 

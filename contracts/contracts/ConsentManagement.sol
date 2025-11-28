@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 /**
  * @title ConsentManagement
@@ -26,8 +25,6 @@ contract ConsentManagement is
     AccessControlUpgradeable, 
     ReentrancyGuardUpgradeable 
 {
-    using CountersUpgradeable for CountersUpgradeable.Counter;
-
     // Role definitions
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant CLINICIAN_ROLE = keccak256("CLINICIAN_ROLE");
@@ -63,7 +60,7 @@ contract ConsentManagement is
     }
 
     // State variables
-    CountersUpgradeable.Counter private _consentIdCounter;
+    uint256 private _consentIdCounter;
     
     // Mapping: patientId => clinicianId => consentType => consentId
     mapping(address => mapping(address => mapping(ConsentType => bytes32))) 
@@ -154,14 +151,14 @@ contract ConsentManagement is
         }
 
         // Generate new consent ID
-        _consentIdCounter.increment();
+        _consentIdCounter++;
         consentId = keccak256(
             abi.encodePacked(
                 patientId,
                 clinicianId,
                 consentType,
                 block.timestamp,
-                _consentIdCounter.current()
+                _consentIdCounter
             )
         );
 

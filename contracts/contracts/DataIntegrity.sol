@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 /**
  * @title DataIntegrity
@@ -132,10 +132,7 @@ contract DataIntegrity is
     {
         record = _merkleRoots[root];
         exists = record.root != bytes32(0);
-        
-        if (exists) {
-            emit MerkleRootVerified(root, true, uint64(block.timestamp));
-        }
+        // Note: Events cannot be emitted in view functions
     }
 
     /**
