@@ -1,13 +1,8 @@
 /**
  * Consent Service - Service layer for consent management
  * 
- * TODO: Implement this service
- * 
- * This service should:
- * 1. Use ConsentContract for blockchain operations
- * 2. Validate business logic
- * 3. Handle errors gracefully
- * 4. Provide high-level API for controllers
+ * This service provides business logic validation and error handling
+ * for consent management operations.
  */
 
 const ConsentContract = require('./ConsentContract.js');
@@ -19,62 +14,121 @@ class ConsentService {
   }
 
   /**
-   * Grant consent
+   * Grant consent with validation
    */
   async grantConsent(patientId, clinicianId, consentType, options = {}) {
-    // TODO: Implement
-    // - Validate patient and clinician exist
-    // - Call contract.grantConsent()
-    // - Handle errors
-    // - Return result
-    
-    throw new Error('Not implemented');
+    try {
+      // Validate patient exists
+      const patient = this.data.patients?.find(p => p.id === patientId);
+      if (!patient) {
+        throw new Error(`Patient with ID ${patientId} not found`);
+      }
+
+      // Validate clinician exists
+      const clinician = this.data.clinicians?.find(c => c.id === clinicianId);
+      if (!clinician) {
+        throw new Error(`Clinician with ID ${clinicianId} not found`);
+      }
+
+      // Call contract to grant consent
+      const result = this.contract.grantConsent(patientId, clinicianId, consentType, options);
+
+      return {
+        success: true,
+        consent: result.consent,
+        transaction: result.transaction
+      };
+    } catch (error) {
+      throw new Error(`Failed to grant consent: ${error.message}`);
+    }
   }
 
   /**
-   * Revoke consent
+   * Revoke consent with validation
    */
   async revokeConsent(consentId, revokedBy) {
-    // TODO: Implement
-    // - Validate consent exists
-    // - Call contract.revokeConsent()
-    // - Handle errors
-    // - Return result
-    
-    throw new Error('Not implemented');
+    try {
+      if (!consentId || !revokedBy) {
+        throw new Error('Consent ID and revoker ID are required');
+      }
+
+      // Call contract to revoke consent
+      const result = this.contract.revokeConsent(consentId, revokedBy);
+
+      return {
+        success: true,
+        consent: result.consent,
+        transaction: result.transaction
+      };
+    } catch (error) {
+      throw new Error(`Failed to revoke consent: ${error.message}`);
+    }
   }
 
   /**
    * Check consent validity
    */
   async checkConsent(patientId, clinicianId, consentType) {
-    // TODO: Implement
-    // - Call contract.hasValidConsent()
-    // - Return result
-    
-    throw new Error('Not implemented');
+    try {
+      if (!patientId || !clinicianId || !consentType) {
+        throw new Error('Patient ID, clinician ID, and consent type are required');
+      }
+
+      const hasConsent = this.contract.hasValidConsent(patientId, clinicianId, consentType);
+
+      return {
+        hasConsent,
+        patientId,
+        clinicianId,
+        consentType
+      };
+    } catch (error) {
+      throw new Error(`Failed to check consent: ${error.message}`);
+    }
   }
 
   /**
    * Get consent history
    */
   async getConsentHistory(patientId) {
-    // TODO: Implement
-    // - Call contract.getConsentHistory()
-    // - Format and return result
-    
-    throw new Error('Not implemented');
+    try {
+      if (!patientId) {
+        throw new Error('Patient ID is required');
+      }
+
+      const history = this.contract.getConsentHistory(patientId);
+
+      return {
+        success: true,
+        patientId,
+        history,
+        count: history.length
+      };
+    } catch (error) {
+      throw new Error(`Failed to get consent history: ${error.message}`);
+    }
   }
 
   /**
    * Get active consents
    */
   async getActiveConsents(patientId) {
-    // TODO: Implement
-    // - Call contract.getActiveConsents()
-    // - Format and return result
-    
-    throw new Error('Not implemented');
+    try {
+      if (!patientId) {
+        throw new Error('Patient ID is required');
+      }
+
+      const activeConsents = this.contract.getActiveConsents(patientId);
+
+      return {
+        success: true,
+        patientId,
+        activeConsents,
+        count: activeConsents.length
+      };
+    } catch (error) {
+      throw new Error(`Failed to get active consents: ${error.message}`);
+    }
   }
 }
 

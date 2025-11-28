@@ -27,11 +27,17 @@ router.use((req, res, next) => {
  */
 router.post('/tree', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { records } = req.body;
+
+    if (!Array.isArray(records) || records.length === 0) {
+      return res.status(400).json({
+        error: 'Records array is required and cannot be empty'
+      });
+    }
+
+    const result = await integrityService.createMerkleTree(records);
+
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
@@ -43,11 +49,17 @@ router.post('/tree', async (req, res, next) => {
  */
 router.post('/proof', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { record, root } = req.body;
+
+    if (!record) {
+      return res.status(400).json({
+        error: 'Record is required'
+      });
+    }
+
+    const result = await integrityService.generateProof(record, root);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -59,11 +71,17 @@ router.post('/proof', async (req, res, next) => {
  */
 router.post('/verify', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { record, proof, root } = req.body;
+
+    if (!record || !proof || !root) {
+      return res.status(400).json({
+        error: 'Record, proof, and root are required'
+      });
+    }
+
+    const result = await integrityService.verifyIntegrity(record, proof, root);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -75,11 +93,17 @@ router.post('/verify', async (req, res, next) => {
  */
 router.post('/verify-batch', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { records } = req.body;
+
+    if (!Array.isArray(records) || records.length === 0) {
+      return res.status(400).json({
+        error: 'Records array is required and cannot be empty'
+      });
+    }
+
+    const result = await integrityService.verifyBatch(records);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

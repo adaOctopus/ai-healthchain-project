@@ -27,11 +27,17 @@ router.use((req, res, next) => {
  */
 router.post('/propose', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { transactions } = req.body;
+
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      return res.status(400).json({
+        error: 'Transactions array is required and cannot be empty'
+      });
+    }
+
+    const result = await consensusService.proposeBlock(transactions);
+
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
@@ -43,11 +49,17 @@ router.post('/propose', async (req, res, next) => {
  */
 router.post('/vote', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { blockHash, isValid } = req.body;
+
+    if (!blockHash) {
+      return res.status(400).json({
+        error: 'Block hash is required'
+      });
+    }
+
+    const result = await consensusService.voteOnBlock(blockHash, isValid);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -59,11 +71,11 @@ router.post('/vote', async (req, res, next) => {
  */
 router.post('/sync', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { networkChains } = req.body;
+
+    const result = await consensusService.syncChain(networkChains || []);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

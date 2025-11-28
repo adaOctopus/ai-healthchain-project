@@ -36,15 +36,19 @@ router.use((req, res, next) => {
  */
 router.post('/grant', async (req, res, next) => {
   try {
-    // TODO: Implement
-    // - Extract request body (patientId, clinicianId, consentType, options)
-    // - Call consentService.grantConsent()
-    // - Return appropriate response
-    
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { patientId, clinicianId, consentType, expiresAt, purpose, metadata } = req.body;
+
+    if (!patientId || !clinicianId || !consentType) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        required: ['patientId', 'clinicianId', 'consentType']
+      });
+    }
+
+    const options = { expiresAt, purpose, metadata };
+    const result = await consentService.grantConsent(patientId, clinicianId, consentType, options);
+
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
@@ -56,15 +60,18 @@ router.post('/grant', async (req, res, next) => {
  */
 router.post('/revoke', async (req, res, next) => {
   try {
-    // TODO: Implement
-    // - Extract request body (consentId, revokedBy)
-    // - Call consentService.revokeConsent()
-    // - Return appropriate response
-    
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { consentId, revokedBy } = req.body;
+
+    if (!consentId || !revokedBy) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        required: ['consentId', 'revokedBy']
+      });
+    }
+
+    const result = await consentService.revokeConsent(consentId, revokedBy);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -76,15 +83,11 @@ router.post('/revoke', async (req, res, next) => {
  */
 router.get('/check/:patientId/:clinicianId/:type', async (req, res, next) => {
   try {
-    // TODO: Implement
-    // - Extract params
-    // - Call consentService.checkConsent()
-    // - Return result
-    
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { patientId, clinicianId, type } = req.params;
+
+    const result = await consentService.checkConsent(patientId, clinicianId, type);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -96,15 +99,11 @@ router.get('/check/:patientId/:clinicianId/:type', async (req, res, next) => {
  */
 router.get('/history/:patientId', async (req, res, next) => {
   try {
-    // TODO: Implement
-    // - Extract patientId param
-    // - Call consentService.getConsentHistory()
-    // - Return result
-    
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { patientId } = req.params;
+
+    const result = await consentService.getConsentHistory(patientId);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -116,15 +115,11 @@ router.get('/history/:patientId', async (req, res, next) => {
  */
 router.get('/active/:patientId', async (req, res, next) => {
   try {
-    // TODO: Implement
-    // - Extract patientId param
-    // - Call consentService.getActiveConsents()
-    // - Return result
-    
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { patientId } = req.params;
+
+    const result = await consentService.getActiveConsents(patientId);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

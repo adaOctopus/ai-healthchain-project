@@ -27,11 +27,18 @@ router.use((req, res, next) => {
  */
 router.post('/consent-proof', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { patientId, clinicianId, consentType } = req.body;
+
+    if (!patientId || !clinicianId || !consentType) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        required: ['patientId', 'clinicianId', 'consentType']
+      });
+    }
+
+    const result = await zkService.generateConsentProof(patientId, clinicianId, consentType);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -43,11 +50,17 @@ router.post('/consent-proof', async (req, res, next) => {
  */
 router.post('/verify-consent', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { proof, expectedRoot } = req.body;
+
+    if (!proof) {
+      return res.status(400).json({
+        error: 'Proof is required'
+      });
+    }
+
+    const result = await zkService.verifyConsentProof(proof, expectedRoot);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -59,11 +72,17 @@ router.post('/verify-consent', async (req, res, next) => {
  */
 router.post('/permission-proof', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { userId, permissions } = req.body;
+
+    if (!userId || !Array.isArray(permissions) || permissions.length === 0) {
+      return res.status(400).json({
+        error: 'User ID and permissions array are required'
+      });
+    }
+
+    const result = await zkService.generatePermissionProof(userId, permissions);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -75,11 +94,17 @@ router.post('/permission-proof', async (req, res, next) => {
  */
 router.post('/verify-permission', async (req, res, next) => {
   try {
-    // TODO: Implement
-    res.status(501).json({
-      error: 'Not implemented',
-      message: 'This endpoint needs to be implemented'
-    });
+    const { proof, requiredPermissions } = req.body;
+
+    if (!proof || !Array.isArray(requiredPermissions) || requiredPermissions.length === 0) {
+      return res.status(400).json({
+        error: 'Proof and requiredPermissions array are required'
+      });
+    }
+
+    const result = await zkService.verifyPermissionProof(proof, requiredPermissions);
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
