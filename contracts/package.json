@@ -12,6 +12,7 @@
     "verify:sepolia": "hardhat verify --network sepolia",
     "interact:local": "hardhat run scripts/interact.js --network localhost",
     "interact:sepolia": "hardhat run scripts/interact.js --network sepolia",
+    "test:key": "node test-private-key.js",
     "clean": "hardhat clean"
   },
   "devDependencies": {
