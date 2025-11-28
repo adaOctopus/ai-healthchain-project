@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/gandalf/Cardano/cardano-development/quantum/aihealthchains-blockchain-assessment/contracts/contracts/AuditTrail.sol": {
-      "lastModificationDate": 1764336949347,
-      "contentHash": "19cfc2e212ba47d37c5dcbc583f663b6",
+      "lastModificationDate": 1764339364119,
+      "contentHash": "cefc17624676e38a7a2440c548ca5299",
       "sourceName": "contracts/AuditTrail.sol",
       "solcConfig": {
         "version": "0.8.22",
