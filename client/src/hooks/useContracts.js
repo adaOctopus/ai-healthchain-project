@@ -15,16 +15,10 @@ export function useContracts() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Initialize provider (connect to Hardhat node)
-  useEffect(() => {
-    try {
-      const provider = new ethers.JsonRpcProvider(RPC_URL);
-      setProvider(provider);
-    } catch (err) {
-      setError('Failed to connect to blockchain: ' + err.message);
-    }
-  }, []);
+  // Don't initialize provider automatically - wait for user to connect
+  // This prevents errors when MetaMask or local node isn't available
 
   // Load contract ABIs and create contract instances
   useEffect(() => {
@@ -89,26 +83,33 @@ export function useContracts() {
     loadContracts();
   }, [provider, signer]);
 
-  // Switch to correct network (Sepolia or Local)
+  // Switch to correct network (Sepolia or Local) - OPTIONAL, user can call this manually
   const switchNetwork = useCallback(async () => {
-    if (!window.ethereum) return;
+    if (!window.ethereum) {
+      throw new Error('MetaMask not found');
+    }
+    
+    // Only switch if we're using Sepolia (not localhost)
+    if (NETWORK_ID !== 11155111) {
+      throw new Error('Network switching only available for Sepolia');
+    }
     
     try {
-      const chainId = NETWORK_ID === 11155111 ? '0xaa36a7' : '0x7a69'; // Sepolia or Local
+      const chainId = '0xaa36a7'; // Sepolia
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId }],
       });
     } catch (switchError) {
       // If network doesn't exist, add it (for Sepolia)
-      if (switchError.code === 4902 && NETWORK_ID === 11155111) {
+      if (switchError.code === 4902) {
         try {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
               chainId: '0xaa36a7',
               chainName: 'Sepolia',
-              rpcUrls: [RPC_URL],
+              rpcUrls: [RPC_URL || 'https://rpc.sepolia.org'],
               nativeCurrency: {
                 name: 'ETH',
                 symbol: 'ETH',
@@ -118,47 +119,155 @@ export function useContracts() {
             }],
           });
         } catch (addError) {
-          console.error('Failed to add network:', addError);
+          throw new Error('Could not add Sepolia network. Please add it manually in MetaMask.');
         }
+      } else if (switchError.code === 4001) {
+        throw new Error('Network switch was rejected.');
+      } else {
+        throw switchError;
       }
     }
   }, []);
 
   // Connect to MetaMask or use local account
   const connectWallet = useCallback(async () => {
+    setError(null);
+    setLoading(true);
+    
     try {
-      if (window.ethereum) {
-        // Switch to correct network first
-        await switchNetwork();
+      // Check if MetaMask is available
+      if (typeof window === 'undefined' || !window.ethereum) {
+        // Fallback: Use local Hardhat account (only if localhost)
+        if (RPC_URL.includes('localhost') || RPC_URL.includes('127.0.0.1')) {
+          try {
+            const provider = new ethers.JsonRpcProvider(RPC_URL);
+            const wallet = new ethers.Wallet(
+              '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+              provider
+            );
+            
+            setProvider(provider);
+            setSigner(wallet);
+            setAccount(wallet.address);
+            setIsConnected(true);
+            setError(null);
+            setLoading(false);
+            return;
+          } catch (err) {
+            setError('Failed to connect to local node: ' + err.message);
+            setLoading(false);
+            return;
+          }
+        } else {
+          setError('MetaMask not found. Please install MetaMask.');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // MetaMask is available - connect to it
+      // Handle multiple providers (some users have multiple wallets)
+      let ethereum = window.ethereum;
+      
+      // If multiple providers, prefer MetaMask
+      if (window.ethereum?.providers) {
+        ethereum = window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers[0];
+      } else if (window.ethereum && !window.ethereum.isMetaMask) {
+        // Not MetaMask, but might still work
+        console.warn('Non-MetaMask wallet detected, attempting connection anyway');
+      }
+      
+      if (!ethereum) {
+        setError('No Ethereum provider found. Please install MetaMask.');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Check if MetaMask is ready - wait a bit if needed
+        if (!ethereum.isConnected || !ethereum._state) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // Try to get existing accounts first (doesn't trigger popup)
+        let accounts = [];
+        try {
+          accounts = await ethereum.request({ method: 'eth_accounts' });
+        } catch (e) {
+          // Ignore - will request new connection below
+        }
+
+        // If no accounts, request connection
+        if (!accounts || accounts.length === 0) {
+          try {
+            accounts = await ethereum.request({ 
+              method: 'eth_requestAccounts'
+            });
+          } catch (reqError) {
+            // MetaMask specific error handling
+            if (reqError.code === 4001) {
+              throw new Error('Connection rejected by user');
+            } else if (reqError.code === -32002) {
+              throw new Error('Connection request already pending. Check MetaMask.');
+            } else {
+              // Log full error for debugging
+              console.error('Full MetaMask error:', reqError);
+              throw new Error(`MetaMask error: ${reqError.message || reqError.code || JSON.stringify(reqError)}`);
+            }
+          }
+        }
         
-        // Use MetaMask
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const address = await signer.getAddress();
+        if (!accounts || accounts.length === 0) {
+          throw new Error('No accounts returned. Please unlock MetaMask.');
+        }
+
+        const address = accounts[0];
+        console.log('Connected account:', address);
+        
+        // Create provider - this might fail if MetaMask is in bad state
+        let provider;
+        try {
+          provider = new ethers.BrowserProvider(ethereum);
+        } catch (providerError) {
+          throw new Error(`Failed to create provider: ${providerError.message}`);
+        }
+        
+        // Get signer
+        let signer;
+        try {
+          signer = await provider.getSigner();
+        } catch (signerError) {
+          throw new Error(`Failed to get signer: ${signerError.message}`);
+        }
+        
+        // Verify address
+        let signerAddress;
+        try {
+          signerAddress = await signer.getAddress();
+        } catch (addrError) {
+          throw new Error(`Failed to get address: ${addrError.message}`);
+        }
+        
+        if (signerAddress.toLowerCase() !== address.toLowerCase()) {
+          console.warn('Address mismatch:', signerAddress, 'vs', address);
+        }
         
         setProvider(provider);
         setSigner(signer);
-        setAccount(address);
+        setAccount(signerAddress);
         setIsConnected(true);
         setError(null);
-      } else {
-        // Fallback: Use local Hardhat account
-        const provider = new ethers.JsonRpcProvider(RPC_URL);
-        // Use first Hardhat account (you can change this)
-        const wallet = new ethers.Wallet(
-          '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-          provider
-        );
-        
-        setProvider(provider);
-        setSigner(wallet);
-        setAccount(wallet.address);
-        setIsConnected(true);
-        setError(null);
+        console.log('Successfully connected to MetaMask');
+      } catch (requestError) {
+        console.error('MetaMask connection error:', requestError);
+        const errorMsg = requestError.message || 'Unknown error';
+        setError(`MetaMask connection failed: ${errorMsg}. Make sure MetaMask is unlocked and try again.`);
       }
     } catch (err) {
-      setError('Failed to connect: ' + err.message);
+      console.error('Connection error:', err);
+      setError('Failed to connect: ' + (err.message || 'Unknown error'));
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -176,6 +285,7 @@ export function useContracts() {
     isConnected,
     account,
     error,
+    loading,
     connectWallet,
     disconnect,
     switchNetwork

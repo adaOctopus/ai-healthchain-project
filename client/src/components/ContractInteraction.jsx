@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useContracts } from '../hooks/useContracts';
-import { CONSENT_TYPES } from '../config/contracts';
+import { CONSENT_TYPES, CONTRACT_ADDRESSES } from '../config/contracts';
 
 /**
  * Component for interacting with smart contracts from the frontend
  */
 export default function ContractInteraction() {
-  const { contracts, isConnected, account, connectWallet, error } = useContracts();
+  const { contracts, isConnected, account, connectWallet, error, loading: walletLoading } = useContracts();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [txHash, setTxHash] = useState(null);
@@ -129,8 +129,17 @@ export default function ContractInteraction() {
         ) : (
           <div>
             <strong>❌ Not Connected</strong>
-            <button onClick={connectWallet} style={{ marginTop: '10px', padding: '8px 16px' }}>
-              Connect Wallet
+            <button 
+              onClick={connectWallet} 
+              disabled={walletLoading}
+              style={{ 
+                marginTop: '10px', 
+                padding: '8px 16px',
+                cursor: walletLoading ? 'not-allowed' : 'pointer',
+                opacity: walletLoading ? 0.6 : 1
+              }}
+            >
+              {walletLoading ? 'Connecting...' : 'Connect Wallet'}
             </button>
           </div>
         )}

@@ -8,24 +8,6 @@ import './App.css'
 const API_BASE = '/api'
 
 function App() {
-  const [blockchainInfo, setBlockchainInfo] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchBlockchainInfo()
-  }, [])
-
-  const fetchBlockchainInfo = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/blockchain/info`)
-      setBlockchainInfo(response.data)
-    } catch (error) {
-      console.error('Error fetching blockchain info:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
     <Router>
       <div className="app">
@@ -46,7 +28,7 @@ function App() {
         <main className="app-main">
           <div className="container">
             <Routes>
-              <Route path="/" element={<Dashboard blockchainInfo={blockchainInfo} loading={loading} />} />
+              <Route path="/" element={<Dashboard />} />
               <Route path="/consent" element={<ConsentManagement />} />
               <Route path="/integrity" element={<DataIntegrity />} />
               <Route path="/zk-proofs" element={<ZKProofs />} />
@@ -66,11 +48,47 @@ function App() {
   )
 }
 
-function Dashboard({ blockchainInfo, loading }) {
+function Dashboard() {
+  const [blockchainInfo, setBlockchainInfo] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [backendAvailable, setBackendAvailable] = useState(false)
+
+  useEffect(() => {
+    fetchBlockchainInfo()
+  }, [])
+
+  const fetchBlockchainInfo = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/blockchain/info`, {
+        timeout: 3000, // 3 second timeout
+        validateStatus: (status) => status < 500, // Don't throw on 4xx errors
+      })
+      if (response.status === 200) {
+        setBlockchainInfo(response.data)
+        setBackendAvailable(true)
+      } else {
+        setBackendAvailable(false)
+      }
+    } catch (error) {
+      // Silently handle all backend errors - backend is optional
+      setBackendAvailable(false)
+      // Don't log - backend is optional and errors are expected when it's not running
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="dashboard">
       <h2>Blockchain Dashboard</h2>
       
+      {!backendAvailable && (
+        <div style={{ padding: '15px', background: '#fff3cd', borderRadius: '5px', marginBottom: '20px' }}>
+          <strong>ℹ️ Backend not running</strong>
+          <p>Start the backend server to see blockchain info. Contract interactions work without the backend.</p>
+        </div>
+      )}
+
       {loading ? (
         <p>Loading blockchain information...</p>
       ) : blockchainInfo ? (
@@ -93,7 +111,7 @@ function Dashboard({ blockchainInfo, loading }) {
           </div>
         </div>
       ) : (
-        <p>Error loading blockchain information</p>
+        !backendAvailable && <p>Backend server is not running. Start it to see blockchain info.</p>
       )}
 
       <div className="features-overview">
