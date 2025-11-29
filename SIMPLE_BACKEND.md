@@ -1,8 +1,14 @@
-# How to Use Your Deployed Contracts - Simple Guide
+# Simple Backend Interaction Guide
+
+## Do I need to generate data first?
+
+**NO.** You can interact directly from the backend. The contracts are already deployed and ready.
+
+---
 
 ## What You Have
 
-**Contract Addresses:**
+**Contract Addresses (already configured):**
 ```
 ConsentManagement: 0x9cFC59905B4b5Bb34ceb447a7dB5c0AB5621B363
 AuditTrail:        0xcacFd7298887451302DE75685A0eAC9b77E59157
@@ -17,19 +23,18 @@ DataIntegrity:     0xE47027C4c595f88B33c010FB42E9Fa608fe1a5d4
 ✅ **API endpoints created**: `/api/contracts/consent/*`
 ✅ **Integrated into server**: `server/src/index.js`
 
-## How to Use It
+---
+
+## 3 Simple Steps
 
 ### Step 1: Start Hardhat Node
-
 ```bash
 cd contracts
 npm run node
 ```
-
-**Keep this running!**
+**Keep this terminal open!**
 
 ### Step 2: Start Backend
-
 ```bash
 cd server
 npm start
@@ -101,14 +106,19 @@ This will:
 - `POST /api/contracts/consent/revoke` - Revoke consent  
 - `GET /api/contracts/consent/check/:patientId/:clinicianId/:type` - Check consent
 
+---
+
 ## That's It!
 
-**To submit transactions:**
-1. Start Hardhat node
-2. Start backend
-3. Call `/api/contracts/consent/grant`
+You don't need:
+- ❌ Pre-generated data
+- ❌ Database setup
+- ❌ Any mock data
+
+Just:
+- ✅ Hardhat node running
+- ✅ Backend running
+- ✅ Call the API endpoints
 
 **Addresses are already configured. Just use the API!**
-
-See `STEP_BY_STEP_CONTRACTS.md` for more details.
 

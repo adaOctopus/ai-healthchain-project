@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import { CONTRACT_ADDRESSES, RPC_URL } from '../config/contracts';
+import { CONTRACT_ADDRESSES, RPC_URL, NETWORK_ID } from '../config/contracts';
 
 /**
  * React hook for interacting with deployed smart contracts
@@ -89,10 +89,48 @@ export function useContracts() {
     loadContracts();
   }, [provider, signer]);
 
+  // Switch to correct network (Sepolia or Local)
+  const switchNetwork = useCallback(async () => {
+    if (!window.ethereum) return;
+    
+    try {
+      const chainId = NETWORK_ID === 11155111 ? '0xaa36a7' : '0x7a69'; // Sepolia or Local
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId }],
+      });
+    } catch (switchError) {
+      // If network doesn't exist, add it (for Sepolia)
+      if (switchError.code === 4902 && NETWORK_ID === 11155111) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0xaa36a7',
+              chainName: 'Sepolia',
+              rpcUrls: [RPC_URL],
+              nativeCurrency: {
+                name: 'ETH',
+                symbol: 'ETH',
+                decimals: 18
+              },
+              blockExplorerUrls: ['https://sepolia.etherscan.io']
+            }],
+          });
+        } catch (addError) {
+          console.error('Failed to add network:', addError);
+        }
+      }
+    }
+  }, []);
+
   // Connect to MetaMask or use local account
   const connectWallet = useCallback(async () => {
     try {
       if (window.ethereum) {
+        // Switch to correct network first
+        await switchNetwork();
+        
         // Use MetaMask
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         const provider = new ethers.BrowserProvider(window.ethereum);
@@ -139,7 +177,8 @@ export function useContracts() {
     account,
     error,
     connectWallet,
-    disconnect
+    disconnect,
+    switchNetwork
   };
 }
 

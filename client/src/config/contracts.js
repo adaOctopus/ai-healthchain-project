@@ -7,8 +7,13 @@ export const CONTRACT_ADDRESSES = {
   DataIntegrity: '0xE47027C4c595f88B33c010FB42E9Fa608fe1a5d4',
 };
 
-// RPC URL - Local Hardhat node
-export const RPC_URL = 'http://localhost:8545';
+// RPC URL - Use Sepolia or local Hardhat
+// Set VITE_SEPOLIA_RPC_URL in client/.env for Sepolia
+// Or leave empty to use local Hardhat node
+export const RPC_URL = import.meta.env.VITE_SEPOLIA_RPC_URL || 'http://localhost:8545';
+
+// Network ID - Sepolia = 11155111, Local = 31337
+export const NETWORK_ID = import.meta.env.VITE_SEPOLIA_RPC_URL ? 11155111 : 31337;
 
 // Consent Type mapping
 export const CONSENT_TYPES = {
