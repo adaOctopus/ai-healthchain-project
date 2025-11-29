@@ -39,6 +39,27 @@ aihealthchains-blockchain-assessment/
 - **TypeScript** (optional but recommended)
 - **Modern UI libraries** (you may add as needed)
 
+## Quick Testing Guide
+
+**For reviewers/testing:** This solution includes both a custom JavaScript blockchain and Solidity contracts deployed on Sepolia. To test:
+
+1. **Install dependencies**: `cd contracts && npm install && cd ../server && npm install && cd ../client && npm install`
+2. **Grant roles** (required for contract interaction): `cd contracts && npx hardhat run scripts/grantRoles.js --network sepolia`
+3. **Start backend**: `cd server && npm start` (runs on port 3000)
+4. **Start frontend**: `cd client && npm run dev` (runs on port 5173)
+5. **Open browser**: `http://localhost:5173` - All features are testable via the UI
+
+**Features to test:**
+- **Consent Management**: Connect MetaMask → Grant consent on Sepolia blockchain
+- **Data Integrity**: Create Merkle trees, generate/verify proofs
+- **ZK Proofs**: Generate and verify zero-knowledge proofs
+- **Audit Trail**: Log data access, consent changes, AI diagnostics
+- **Consensus**: Test block proposal, voting, chain sync
+
+**Note**: Frontend connects to Sepolia via MetaMask. Backend uses custom JavaScript blockchain. See `TESTING_GUIDE.md` for detailed instructions.
+
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -46,6 +67,8 @@ aihealthchains-blockchain-assessment/
 - Node.js v18 or higher
 - npm or yarn package manager
 - Git
+- MetaMask browser extension (for frontend contract interaction)
+- Sepolia testnet ETH (get from https://sepoliafaucet.com/)
 
 ### Installation
 
