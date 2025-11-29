@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import axios from 'axios'
+import ContractInteraction from './components/ContractInteraction'
 import './App.css'
 
 // API base URL
@@ -114,13 +115,10 @@ function ConsentManagement() {
     <div className="feature-page">
       <h2>Consent Management</h2>
       <p className="feature-description">
-        Implement smart contract functionality for managing patient consent.
-        This feature allows granting, revoking, and checking consent status.
+        Interact with smart contracts directly from the frontend.
+        Grant consent, revoke consent, and check consent status on the blockchain.
       </p>
-      <div className="feature-status">
-        <p>Status: <span className="status-pending">To be implemented</span></p>
-        <p>See <code>server/src/features/consent-management/</code> for implementation files.</p>
-      </div>
+      <ContractInteraction />
     </div>
   )
 }

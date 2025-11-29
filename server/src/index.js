@@ -74,12 +74,28 @@ app.get('/api/blockchain/info', (req, res) => {
   res.json(info);
 });
 
-// Feature routes
+// Feature routes (custom blockchain)
 app.use('/api/consent', consentRoutes);
 app.use('/api/integrity', integrityRoutes);
 app.use('/api/zk', zkRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/consensus', consensusRoutes);
+
+// Real Solidity contract routes (if available)
+try {
+  const EthersContractService = require('./services/ethersContractService.js');
+  const ethersContractService = new EthersContractService();
+  app.locals.ethersContractService = ethersContractService;
+  
+  // Add contract endpoints
+  app.use('/api/contracts/consent', require('./features/consent-management/consentEthersController.js'));
+  
+  console.log('✓ Real Solidity contract endpoints enabled at /api/contracts/*');
+} catch (error) {
+  console.warn('⚠️  Real contract service not available:', error.message);
+  console.warn('   Continuing with custom blockchain only');
+  console.warn('   To enable: Make sure contracts are compiled and Hardhat node is running');
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
