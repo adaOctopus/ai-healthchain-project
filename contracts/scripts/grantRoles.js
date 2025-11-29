@@ -11,10 +11,17 @@ async function main() {
   const [signer] = await hre.ethers.getSigners();
   console.log("Admin address:", signer.address);
   
-  // Addresses to grant roles to (add your MetaMask address here)
+  // Addresses to grant roles to
+  // Default Hardhat accounts (used by frontend when addresses are empty)
+  const defaultHardhatAccounts = [
+    "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", // Hardhat account #0 (default patient)
+    "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", // Hardhat account #1 (default clinician)
+  ];
+  
   const addressesToGrant = [
     signer.address, // Deployer/admin
     "0x91BcE66b1fA371F1dbFC3DB1e0257BAFfD1292a8", // Your MetaMask address
+    ...defaultHardhatAccounts, // Add default Hardhat accounts
   ];
   
   const CLINICIAN_ROLE = await consent.CLINICIAN_ROLE();
