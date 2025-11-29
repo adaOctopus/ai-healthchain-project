@@ -40,7 +40,11 @@ router.post('/consent-proof', async (req, res, next) => {
 
     res.status(200).json(result);
   } catch (error) {
-    next(error);
+    console.error('ZK proof generation error:', error);
+    res.status(500).json({
+      message: error.message,
+      status: 500
+    });
   }
 });
 
