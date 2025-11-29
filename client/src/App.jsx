@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import axios from 'axios'
 import ContractInteraction from './components/ContractInteraction'
+import DataIntegrityTest from './components/DataIntegrityTest'
+import AuditTrailTest from './components/AuditTrailTest'
+import ZKProofsTest from './components/ZKProofsTest'
+import ConsensusTest from './components/ConsensusTest'
 import './App.css'
 
 // API base URL
@@ -149,10 +153,7 @@ function DataIntegrity() {
         Implement Merkle tree data structure for tamper-evident record keeping.
         Generate and verify proofs for data integrity.
       </p>
-      <div className="feature-status">
-        <p>Status: <span className="status-pending">To be implemented</span></p>
-        <p>See <code>server/src/features/data-integrity/</code> for implementation files.</p>
-      </div>
+      <DataIntegrityTest />
     </div>
   )
 }
@@ -165,10 +166,7 @@ function ZKProofs() {
         Implement zero-knowledge proof system for permission verification
         without revealing underlying data.
       </p>
-      <div className="feature-status">
-        <p>Status: <span className="status-pending">To be implemented</span></p>
-        <p>See <code>server/src/features/zk-proofs/</code> for implementation files.</p>
-      </div>
+      <ZKProofsTest />
     </div>
   )
 }
@@ -181,10 +179,7 @@ function AuditTrail() {
         Implement immutable audit logging system that records all data access,
         consent changes, and AI diagnostic submissions on the blockchain.
       </p>
-      <div className="feature-status">
-        <p>Status: <span className="status-pending">To be implemented</span></p>
-        <p>See <code>server/src/features/audit-trail/</code> for implementation files.</p>
-      </div>
+      <AuditTrailTest />
     </div>
   )
 }
@@ -197,10 +192,7 @@ function Consensus() {
         Implement consensus algorithm for transaction validation and block creation
         in the permissioned blockchain network.
       </p>
-      <div className="feature-status">
-        <p>Status: <span className="status-pending">To be implemented</span></p>
-        <p>See <code>server/src/features/consensus/</code> for implementation files.</p>
-      </div>
+      <ConsensusTest />
     </div>
   )
 }
