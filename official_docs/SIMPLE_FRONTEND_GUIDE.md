@@ -6,9 +6,22 @@ The frontend connects directly to **Sepolia testnet** via MetaMask. You can inte
 
 ---
 
-## Quick Setup (3 Steps)
+## Quick Setup (4 Steps)
 
-### Step 1: Configure Sepolia RPC (Optional)
+### Step 1: Grant Roles to Your Address (REQUIRED)
+
+**⚠️ IMPORTANT**: The contract requires roles. You must grant yourself a role before you can interact.
+
+```bash
+cd contracts
+npx hardhat run scripts/grantRoles.js --network sepolia
+```
+
+This grants `CLINICIAN_ROLE` and `PATIENT_ROLE` to your addresses. **Edit the script** to add your MetaMask address if needed.
+
+**See `ROLES_SETUP.md` for detailed instructions.**
+
+### Step 2: Configure Sepolia RPC (Optional)
 
 If you want to use a custom Sepolia RPC, create `client/.env` or `client/.env.local`:
 
@@ -18,14 +31,14 @@ VITE_SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_PROJECT_ID
 
 **If you don't set this**, the frontend will use MetaMask's default Sepolia network.
 
-### Step 2: Start Frontend
+### Step 3: Start Frontend
 
 ```bash
 cd client
 npm run dev
 ```
 
-### Step 3: Connect & Use
+### Step 4: Connect & Use
 
 1. Open browser: `http://localhost:5173`
 2. Click **"Consent Management"** in navigation
@@ -129,10 +142,12 @@ The frontend **does NOT automatically switch networks**. If you're on the wrong 
 ### "Connection rejected"
 - **Solution**: Click "Connect" in MetaMask popup
 
-### "Transaction failed"
+### "Transaction failed" or "Unauthorized"
+- **Check**: Did you grant roles? Run `npx hardhat run scripts/grantRoles.js --network sepolia`
 - **Check**: Are you on Sepolia network?
 - **Check**: Do you have Sepolia ETH for gas?
 - **Check**: Is the contract address correct?
+- **Check**: Does your address have CLINICIAN_ROLE or PATIENT_ROLE? See `ROLES_SETUP.md`
 
 ### "Network mismatch"
 - **Solution**: Switch MetaMask to Sepolia network manually
